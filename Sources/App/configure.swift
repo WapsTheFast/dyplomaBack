@@ -1,0 +1,38 @@
+import Fluent
+import FluentPostgresDriver
+import Leaf
+import Vapor
+
+// configures your application
+public func configure(_ app: Application) throws {
+    // uncomment to serve files from /Public folder
+    // app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
+
+    app.databases.use(.postgres(
+        hostname: Environment.get("DATABASE_HOST") ?? "localhost",
+        port: Environment.get("DATABASE_PORT").flatMap(Int.init(_:)) ?? PostgresConfiguration.ianaPortNumber,
+        username: Environment.get("DATABASE_USERNAME") ?? "vapor_username",
+        password: Environment.get("DATABASE_PASSWORD") ?? "vapor_password",
+        database: Environment.get("DATABASE_NAME") ?? "vapor_database"
+    ), as: .psql)
+
+    
+
+    app.views.use(.leaf)
+   // app.migrations.add(CreateRole())
+    app.migrations.add(CreateUser())
+    app.migrations.add(CreateToken())
+    app.migrations.add(CreateAdminUser())
+    app.migrations.add(CreateGroup())
+    app.migrations.add(CreateUserGroupPivot())
+    app.migrations.add(CreateSubject())
+    app.migrations.add(CreateLecture())
+    app.migrations.add(CreateStudentsOnLecture())
+    app.migrations.add(CreateQuestions())
+    app.migrations.add(CreateAnswers())
+    
+    try app.autoMigrate().wait()
+
+    // register routes
+    try routes(app)
+}
