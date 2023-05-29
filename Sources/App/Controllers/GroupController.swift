@@ -28,6 +28,8 @@ struct GroupController: RouteCollection{
     func create(req : Request) async throws -> Group{
         let group = try req.content.decode(Group.self)
         try await group.save(on: req.db)
+        try await group.$users.attach(req.auth.require(User.self), on: req.db)
+        try await group.save(on: req.db)
         return group
     }
     

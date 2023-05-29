@@ -11,22 +11,19 @@ import Vapor
 struct UserController: RouteCollection {
     func boot(routes: RoutesBuilder) throws {
         let users = routes.grouped("users")
-        
-        users.get(use: index)
-        //users.post(use: create)
-        
-        
+        users.get(use: getAllUsers)      
         let basicAuthMiddleware = User.authenticator()
         let basicAuthGroup = users.grouped(basicAuthMiddleware)
         basicAuthGroup.post("login", use: login)
-        
         let tokenAuthMiddleware = Token.authenticator()
         let guardAuthMiddleware = User.guardMiddleware()
         let tokenAuthGroup = users.grouped(tokenAuthMiddleware, guardAuthMiddleware)
         users.post(use: create)
+        tokenAuthGroup.get(use: getUser)
         tokenAuthGroup.group(":userID") { user in
             user.delete(use: delete)
         }
+        tokenAuthGroup.get("groups", use: getGroups)
     }
     
     func login(_ req: Request) async throws -> Token{
@@ -36,8 +33,19 @@ struct UserController: RouteCollection {
         return token
     }
 
-    func index(req: Request) async throws -> [User.Public] {
+
+
+    func getAllUsers(req: Request) async throws -> [User.Public] {
         try await User.query(on: req.db).all().convertToPublic()
+    }
+
+    func getUser(_ req: Request) async throws -> User{
+        try req.auth.require(User.self)
+    }
+
+    func getGroups(_ req: Request) async throws -> [Group]{
+        let user = try req.auth.require(User.self) 
+        return try await user.$groups.get(on: req.db)
     }
 
     func create(req: Request) async throws -> User.Public {

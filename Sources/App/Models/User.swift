@@ -70,10 +70,18 @@ final class User: Model, Content {
     final class Public : Content{
         var id: UUID?
         var username: String
+        var name : String
+        var surname : String
+        var email : String
+        var role : Role
         
-        init(id: UUID?, name: String, username: String){
+        init(id: UUID?, username: String, name : String, surname : String, email : String, role : Role){
             self.id = id
             self.username = username
+            self.name = name
+            self.surname = surname
+            self.email = email
+            self.role = role
         }
     }
     
@@ -81,7 +89,7 @@ final class User: Model, Content {
 
 extension User{
     func convertToPublic()-> User.Public{
-        return User.Public(id: id, name: name, username: username)
+        return User.Public(id: id, username: username, name : name, surname : surname, email : email, role : role)
     }
 }
 

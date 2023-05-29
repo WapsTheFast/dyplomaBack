@@ -1,0 +1,29 @@
+{
+    "configurations": [
+        
+        {
+            "type": "lldb",
+            "request": "launch",
+            "sourceLanguages": [
+                "swift"
+            ],
+            "name": "Debug Run",
+            "program": "${workspaceFolder:dyplomaBack}/.build/debug/Run",
+            "args": [],
+            "cwd": "${workspaceFolder:dyplomaBack}",
+            "preLaunchTask": "swift: Build Debug Run"
+        },
+        {
+            "type": "lldb",
+            "request": "launch",
+            "sourceLanguages": [
+                "swift"
+            ],
+            "name": "Release Run",
+            "program": "${workspaceFolder:dyplomaBack}/.build/release/Run",
+            "args": [],
+            "cwd": "${workspaceFolder:dyplomaBack}",
+            "preLaunchTask": "swift: Build Release Run"
+        }
+    ]
+}
