@@ -24,6 +24,7 @@ struct UserController: RouteCollection {
             user.delete(use: delete)
         }
         tokenAuthGroup.get("groups", use: getGroups)
+        tokenAuthGroup.patch("attach", ":groupID", use: attatchToGroup)
     }
     
     func login(_ req: Request) async throws -> Token{
@@ -53,6 +54,17 @@ struct UserController: RouteCollection {
         user.password = try Bcrypt.hash(user.password)
         try await user.save(on: req.db)
         return user.convertToPublic()
+    }
+
+    func attatchToGroup(req: Request) async throws -> Group{
+        let user : User = try req.auth.require(User.self)
+        guard let group = try await Group.find(req.parameters.get("groupID"), on: req.db) else{
+            throw Abort(.notFound)
+        }
+        try await user.$groups.attach(group, on: req.db)
+        try await user.save(on: req.db)
+        try await group.save(on: req.db)
+        return group
     }
 
     func delete(req: Request) async throws -> HTTPStatus {
