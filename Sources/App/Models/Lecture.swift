@@ -48,7 +48,14 @@ final class Lecture: Model, Content {
 
     init() { }
 
-    init(id: UUID? = nil, name: String, date: Date, imagePath: String? = nil, matherialPath : String? = nil, groupID : Group.IDValue, userID : User.IDValue, subjectID : Subject.IDValue) {
+    init(id: UUID? = nil,
+         name: String, 
+         date: Date, 
+         imagePath: String? = nil, 
+         matherialPath : String? = nil, 
+         groupID : Group.IDValue, 
+         userID : User.IDValue, 
+         subjectID : Subject.IDValue) {
         self.id = id
         self.name = name
         self.date = date
