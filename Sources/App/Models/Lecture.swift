@@ -8,6 +8,9 @@
 import Fluent
 import Vapor
 
+enum LectureState : String, Codable, CaseIterable{
+    case onGoing, planned, done, archived
+}
 
 
 final class Lecture: Model, Content {
@@ -39,9 +42,12 @@ final class Lecture: Model, Content {
     
     @Field(key: "date")
     var date: Date
+
+    @Enum(key: "state")
+    var state: LectureState
     
-    @OptionalField(key: "image_path")
-    var imagePath: String?
+    @OptionalField(key: "code")
+    var code: UUID?
     
     @OptionalField(key: "matherial_path")
     var matherialPath: String?
@@ -51,7 +57,8 @@ final class Lecture: Model, Content {
     init(id: UUID? = nil,
          name: String, 
          date: Date, 
-         imagePath: String? = nil, 
+         state: String,
+         code: UUID? = nil, 
          matherialPath : String? = nil, 
          groupID : Group.IDValue, 
          userID : User.IDValue, 
@@ -59,7 +66,19 @@ final class Lecture: Model, Content {
         self.id = id
         self.name = name
         self.date = date
-        self.imagePath = imagePath
+        switch state{
+            case "onGoing":
+            self.state = .onGoing
+            case "planned":
+            self.state = .planned
+            case "done":
+            self.state = .done
+            case "acrchived":
+            self.state = .archived
+            default:
+            self.state = .planned
+        }
+        self.code = code
         self.matherialPath = matherialPath
         self.$group.id = groupID
         self.$user.id = userID
