@@ -16,7 +16,7 @@ struct CreateStudentsOnLecture: AsyncMigration{
             .id()
             .field("state", .string, .required)
             .field("group_id", .uuid, .references("groups", "id"))
-            .field("lecture_id", .uuid, .references("lectures", "id"))
+            .field("lecture_id", .uuid, .references("lectures", "id", onDelete: .cascade, onUpdate: .cascade))
             .field("student_id", .uuid, .references("users", "id"))
             .create()
     }
