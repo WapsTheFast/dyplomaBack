@@ -24,7 +24,7 @@ struct UserController: RouteCollection {
             user.delete(use: delete)
         }
         tokenAuthGroup.get("groups", use: getGroups)
-        tokenAuthGroup.patch("attach", ":groupID", use: attatchToGroup)
+        tokenAuthGroup.patch("attach", ":inviteCode", use: attatchToGroup)
     }
     
     func login(_ req: Request) async throws -> Token{
@@ -58,7 +58,9 @@ struct UserController: RouteCollection {
 
     func attatchToGroup(req: Request) async throws -> Group{
         let user : User = try req.auth.require(User.self)
-        guard let group = try await Group.find(req.parameters.get("groupID"), on: req.db) else{
+        guard let group = try await Group.query(on: req.db)
+        .filter(\.$inviteCode == Int(req.parameters.get("inviteCode")!))
+        .first() else{
             throw Abort(.notFound)
         }
         try await user.$groups.attach(group, on: req.db)
