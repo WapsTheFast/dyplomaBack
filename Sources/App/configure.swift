@@ -6,7 +6,9 @@ import Vapor
 // configures your application
 public func configure(_ app: Application) throws {
     // uncomment to serve files from /Public folder
-    // app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
+    app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
+    app.routes.defaultMaxBodySize = "10mb" // установите достаточно большое значение
+
 
     app.databases.use(.postgres(
         hostname: Environment.get("DATABASE_HOST") ?? "localhost",
@@ -30,6 +32,7 @@ public func configure(_ app: Application) throws {
     app.migrations.add(CreateStudentsOnLecture())
     app.migrations.add(CreateQuestions())
     app.migrations.add(CreateAnswers())
+    app.migrations.add(CreateFeedback())
     
     try app.autoMigrate().wait()
 
