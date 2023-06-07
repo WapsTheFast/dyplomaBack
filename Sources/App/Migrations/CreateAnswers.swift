@@ -14,11 +14,11 @@ struct CreateAnswers: AsyncMigration{
         try await database.schema("answers")
             .id()
             .field("name", .string, .required)
-            .field("answers_path", .string, .required)
+            .field("answers", .json, .required)
             .field("student_id", .uuid, .references("users", "id"))
             .field("lecture_id", .uuid, .references("lectures", "id"))
             .field("questions_id", .uuid, .references("questions", "id"))
-            .unique(on: "name")
+            .unique(on: "student_id", "questions_id")
             .create()
     }
     

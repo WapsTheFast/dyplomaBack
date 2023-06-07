@@ -15,10 +15,9 @@ struct CreateQuestions: AsyncMigration{
         try await database.schema("questions")
             .id()
             .field("name", .string, .required)
-            .field("questions_path", .string, .required)
+            .field("questions", .json, .required)
             .field("teacher_id", .uuid, .references("users", "id"))
             .field("lecture_id", .uuid, .references("lectures", "id"))
-            .unique(on: "name")
             .create()
     }
     

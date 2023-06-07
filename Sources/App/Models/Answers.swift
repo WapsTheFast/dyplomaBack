@@ -26,18 +26,23 @@ final class Answers : Model, Content{
     @Field(key: "name")
     var name: String
     
-    @Field(key: "answers_path")
-    var answersPath : String
+    @Field(key: "answers")
+    var answers : AnswersForTest
     
     
     init() {}
     
-    init(id : UUID? = nil, name : String, answersPath : String, userID : User.IDValue, lectureID : Lecture.IDValue, questionsID : Questions.IDValue){
+    init(id : UUID? = nil, name : String, answers : AnswersForTest, userID : User.IDValue, lectureID : Lecture.IDValue, questionsID : Questions.IDValue){
         self.id = id
         self.name = name
-        self.answersPath = answersPath
+        self.answers = answers
         self.$user.id = userID
         self.$lecture.id = lectureID
         self.$questions.id = questionsID
     }
+}
+
+struct AnswersForTest : Codable{
+    var answers : [String : [Int]]
+    var mark : [String : String]
 }

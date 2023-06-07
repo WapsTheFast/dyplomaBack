@@ -26,17 +26,28 @@ final class Questions : Model, Content{
     @Field(key: "name")
     var name: String
     
-    @Field(key: "questions_path")
-    var questionsPath : String
+    @Field(key: "questions")
+    var questions : Test
     
     
     init() {}
     
-    init(id : UUID? = nil, name : String, questionsPath : String, userID : User.IDValue, lectureID : Lecture.IDValue){
+    init(id : UUID? = nil, name : String, questions : Test, userID : User.IDValue, lectureID : Lecture.IDValue){
         self.id = id
         self.name = name
-        self.questionsPath = questionsPath
+        self.questions = questions
         self.$user.id = userID
         self.$lecture.id = lectureID
     }
+}
+
+struct Test : Codable {
+    var testName : String
+    var questions : [QuestionsForTest]
+}
+
+struct QuestionsForTest : Codable{
+    var options : [String]
+    var correctAnswersIndices : [Int]
+    var questionText : String
 }
