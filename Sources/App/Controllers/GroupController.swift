@@ -16,6 +16,7 @@ struct GroupController: RouteCollection{
         let tokenAuthGroup = groups.grouped(tokenAuthMiddleware, guardAuthMiddleware)
         tokenAuthGroup.get(use: index)
         tokenAuthGroup.post(use: create)
+        tokenAuthGroup.put(use: update)
         tokenAuthGroup.group(":groupID") { group in
             group.delete(use: delete)
         }
@@ -24,6 +25,8 @@ struct GroupController: RouteCollection{
         tokenAuthGroup.get("teachers", ":groupID", use: getTeachersForGroup)
     }
     
+
+
     func index(req : Request) async throws -> [Group]{
         try await Group.query(on: req.db).all()
     }
@@ -37,6 +40,7 @@ struct GroupController: RouteCollection{
         try await user.save(on: req.db)
         return group
     }
+
 
     func getUsers(req: Request) async throws -> [User]{
         guard let group : Group = try await Group.find(req.parameters.get("groupID"), on: req.db) else{
@@ -62,6 +66,22 @@ struct GroupController: RouteCollection{
         let users : [User] = try await group.$users.get(on: req.db)
         let teachers : [User] = users.filter{$0.role == .teacher}
         return teachers
+    }
+
+    func update(req: Request) async throws -> Group{
+        let group = try req.content.decode(Group.self)
+
+        guard let oldGroup = try await Group.find(group.id, on: req.db) else{
+            throw Abort(.notFound)
+        }
+
+        oldGroup.name = group.name
+        oldGroup.color = group.color
+        oldGroup.course = group.course
+        oldGroup.inviteCode = group.inviteCode
+
+        try await oldGroup.update(on: req.db)
+        return oldGroup
     }
     
     func delete(req: Request) async throws -> HTTPStatus {

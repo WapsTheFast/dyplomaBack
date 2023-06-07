@@ -28,6 +28,8 @@ struct LectureController: RouteCollection {
         tokenAuthGroup.get("one",":lectureID", use: getOne)
         tokenAuthGroup.get("getStudentsForLecture", ":lectureID", use: getStudents)
         tokenAuthGroup.get("mark", ":code", use: markStudentOnLecture)
+
+        tokenAuthGroup.put(use: update)
     }
 
     func index(req: Request) async throws -> [Lecture] {
@@ -106,28 +108,17 @@ struct LectureController: RouteCollection {
 
     func checkForStudent(req: Request) async throws -> [StudentsOnLecture]{
         let user = try req.auth.require(User.self)
-        // guard let lecture = try await Lecture.find(req.parameters.get("lectureID"), on: req.db) else{
-        //     throw Abort(.notFound)
-        // }
-        //let studentOnLecture = try await StudentsOnLecture.find(req.parameters.get("lectureID"), on: req.db)
         let studentOnLecture = try await StudentsOnLecture.query(on: req.db)
         .filter(\.$user.$id == user.id!)
-        //.filter(\.$lecture.$id == lecture.id!)
          .all() 
-        //else{
-        //     throw Abort(.notFound)
-        // }
         return studentOnLecture
    }
 
    func checkStudents(req: Request) async throws -> [StudentsOnLecture]{
-        //let user = try req.auth.require(User.self)
         guard let lecture = try await Lecture.find(req.parameters.get("lectureID"), on: req.db) else{
             throw Abort(.notFound)
         }
-        // let studentOnLecture = try await StudentsOnLecture.find(req.parameters.get("lectureID"), on: req.db)
         let studentOnLecture = try await StudentsOnLecture.query(on: req.db)
-        //.filter(\.$user.$id == user.id!)
         .filter(\.$lecture.$id == lecture.id!)
         .all()
         return studentOnLecture
@@ -174,6 +165,29 @@ struct LectureController: RouteCollection {
         return studentOnLecture
     }
 
+    func update(req: Request) async throws -> Lecture{
+        let lecture = try req.content.decode(Lecture.self)
+
+        guard let oldLecture = try await Lecture.find(lecture.id, on: req.db) else{
+            throw Abort(.notFound)
+        }
+
+        
+
+        oldLecture.state = lecture.state
+        oldLecture.name = lecture.name
+        oldLecture.date = lecture.date
+
+// if let newSubject = try await Subject.find(lecture.subject.id, on: req.db){
+
+//         oldLecture.subject.id = newSubject.id
+//         oldLecture.subject.name = newSubject.name
+// }
+
+
+        try await oldLecture.update(on: req.db)
+        return oldLecture
+    }
 
     func delete(req: Request) async throws -> HTTPStatus {
         guard let lecture = try await Lecture.find(req.parameters.get("lectureID"), on: req.db) else {
