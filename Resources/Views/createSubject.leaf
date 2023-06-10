@@ -1,0 +1,22 @@
+
+#extend("base"):
+  #export("content"):
+    <h1>#(title)</h1>
+
+    <form method="post">
+      #if(csrfToken):
+        <input type="hidden" name="csrfToken" value="#(csrfToken)">
+      #endif
+      
+      <div class="form-group">
+        <label for="name">Название предмета</label>
+        <input type="text" name="name" class="form-control"
+        id="name" #if(editing): value="#(subject.name)" #endif/>
+      </div>
+
+      <button type="submit" class="btn btn-primary">
+        #if(editing): Изменить #else: Создать #endif
+      </button>
+    </form>
+  #endexport
+#endextend

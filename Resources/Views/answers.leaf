@@ -1,0 +1,6 @@
+#extend("base"):
+  #export("content"):
+    <h1>#(answers.name)</h1>
+    #extend("questionsTable")
+  #endexport
+#endextend

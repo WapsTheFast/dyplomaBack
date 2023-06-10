@@ -1,0 +1,83 @@
+
+#extend("base"):
+  #export("content"):
+    <h1>#(title)</h1>
+
+    <form method="post">
+      #if(csrfToken):
+        <input type="hidden" name="csrfToken" value="#(csrfToken)">
+      #endif
+      
+      <div class="form-group">
+        <label for="name">Имя</label>
+        <input type="text" name="name" class="form-control"
+        id="name" #if(editing): value="#(user.name)" #endif/>
+      </div>
+
+      <div class="form-group">
+        <label for="surname">Фамилия</label>
+        <input type="text" name="surname" class="form-control"
+        id="surname" #if(editing): value="#(user.surname)" #endif/>
+      </div>
+
+      <div class="form-group">
+        <label for="role">Роль</label>
+        <select name="role" class="form-control" id="role" placeholder="Role">
+          #if(editing):
+            #for(role in roles):
+              <option value="#(role)" #if(role == user.role): selected="selected" #endif>#if(role == "teacher"): Преподаватель #elseif(role == "student"): Учащийся #else: Администратор #endif</option>
+            #endfor
+          #else:
+            #for(role in roles):
+              <option value="#(role)">#if(role == "teacher"): Преподаватель #elseif(role == "student"): Учащийся #else: Администратор #endif</option>
+            #endfor
+          #endif
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="groups">Группы:</label>
+        <select name="newGroups[]" class="form-control"
+         id="groups" placeholder="Groups" multiple="multiple">
+          #if(editing):
+            #for(group in allGroups):
+              <option value="#(group.id)" #if(contains(userGroups, group)): selected="selected" #endif>
+                #(group.name)
+              </option>
+            #endfor
+            #else:
+            #for(group in allGroups):
+              <option value="#(group.id)">
+                #(group.name)
+              </option>
+            #endfor
+          #endif
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="email">Почта</label>
+        <input type="text" name="email" class="form-control"
+        id="email" #if(editing): value="#(user.email)" #endif/>
+      </div>
+
+      <div class="form-group">
+        <label for="username">Псевдоним</label>
+        <input type="text" name="username" class="form-control"
+        id="username" #if(editing): value="#(user.username)" #endif/>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Пароль</label>
+        <input type="password" name="password" class="form-control"
+        id="password" #if(editing): value="#("")" #endif/>
+      </div>
+
+      
+
+      <button type="submit" class="btn btn-primary">
+        #if(editing): Изменить #else: Создать #endif
+      </button>
+    </form>
+  #endexport
+#endextend

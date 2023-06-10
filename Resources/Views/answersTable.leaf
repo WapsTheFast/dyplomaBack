@@ -1,0 +1,20 @@
+#if(count(answers) > 0):
+
+    <h3>Ответы на тесты:</h3>
+    <table class="table table-bordered table-hover">
+    <thead class="thead-light">
+        <tr>
+        <th>Название теста</th>
+        </tr>
+    </thead>
+    <tbody>
+        #for(answer in answers):
+        <tr onclick="window.location.href = '/answers/#(answer.id)';">
+            <td>#(answer.name)</td>
+        </tr>
+        #endfor
+    </tbody>
+    </table>
+#else:
+    <h2>Тут пока нет ответов!</h2>
+#endif

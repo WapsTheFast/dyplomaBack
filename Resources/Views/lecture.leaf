@@ -1,0 +1,14 @@
+#extend("base"):
+  #export("content"):
+    <h1>#(lecture.name)</h1>
+    #if(lecture.state == "archived"):
+    <div><h2>В архиве</h2><form method="post" action="/lectures/#(lecture.id)/edit">
+      <input class="btn btn-primary" type="submit" value="Разархивировать" /><form method="post" action="/lectures/#(lecture.id)/delete">
+      <input class="btn btn-danger" type="submit" value="Удалить" />
+    </form></div>
+    #else:
+        <h2>#if(lecture.state == "planned"): Запланирована #elseif(lecture.state == "onGoing"): Идёт #elseif(lecture.state == "done"): Завершена #endif</h2>
+    #endif
+    
+  #endexport
+#endextend

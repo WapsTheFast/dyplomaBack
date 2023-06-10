@@ -1,0 +1,20 @@
+#extend("base"):
+  #export("content"):
+    <h1>Фамилия Имя: #(user.surname) #(user.name)</h1>
+    <h2>Роль: #if(user.role == "teacher"): Преподаватель #elseif(user.role == "student"): Учащийся #else: Администратор #endif</h2>
+    <h2>Псевдоним: #(user.username)</h2>
+    <br>
+    <form method="post" action="/users/#(user.id)/delete">
+      <a class="btn btn-primary" href="/users/#(user.id)/edit"
+      role="button">Изменить</a>&nbsp;
+      <input class="btn btn-danger" type="submit" value="Удалить" />
+    </form>
+    <br>
+    #if(user.role == "teacher"):
+        #extend("lecturesTable")
+    #endif
+    #if(user.role == "student"):
+        #extend("answersTable")
+    #endif
+  #endexport
+#endextend

@@ -1,0 +1,34 @@
+#extend("base"):
+  #export("content"):
+    <h1>Запросы пользователей:</h1>
+    
+    #if(count(feedbacks) > 0):
+
+    <div class="table-responsive">
+      <table class="table table-bordered table-hover">
+        <thead class="thead-light">
+          <tr>
+            <th>Отправитель</th>
+            <th>Текст обращения</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          #for(feedback in feedbacks):
+            <tr>
+              <td onclick="window.location.href = '/users/#(feedback.user.id)'">#(feedback.user.name) #(feedback.user.surname)</td>
+              <td onclick="window.location.href = '/feedback/#(feedback.feedback.id)'"><div style="max-height: 100px; overflow: scroll;">#(feedback.feedback.text)</div></td>
+              <td><form method="post" action="/feedback/#(feedback.feedback.id)/delete">
+      <input class="btn btn-danger" type="submit" value="Удалить" />
+    </form></td>
+            </tr>
+          #endfor
+        </tbody>
+      </table>
+      </div>
+    #else:
+      <h2>Тут пока нету запросов!</h2>
+    #endif
+    
+  #endexport
+#endextend

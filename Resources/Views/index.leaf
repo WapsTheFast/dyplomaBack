@@ -1,12 +1,5 @@
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-
-  <title>#(title)</title>
-</head>
-
-<body>
-  <h1>#(title)</h1>
-</body>
-</html>
+#extend("base"):
+  #export("content"):
+      <img style="width: 100%;" src="/images/logoText.png" class="rounded" alt="Logo"> 
+  #endexport
+#endextend

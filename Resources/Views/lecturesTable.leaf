@@ -1,0 +1,21 @@
+#if(count(lectures) > 0):
+    <h3>Лекции:</h3>
+    <table class="table table-bordered table-hover">
+    <thead class="thead-light">
+        <tr>
+        <th>Название</th>
+        <th>Дата проведения</th>
+        </tr>
+    </thead>
+    <tbody>
+        #for(lecture in lectures):
+        <tr>
+            <td><a href="/lectures/#(lecture.id)">#(lecture.name)</a></td>
+            <td>#date(lecture.date, "HH:mm dd-MM-yyyy")</td>
+        </tr>
+        #endfor
+    </tbody>
+    </table>
+#else:
+    <h2>Тут пока нет лекций!</h2>
+#endif
