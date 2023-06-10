@@ -8,3 +8,4 @@ db.sqlite
 .swiftpm
 .env
 lectures/uploads
+.vscode/settings.json
