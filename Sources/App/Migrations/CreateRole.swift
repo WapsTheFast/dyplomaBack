@@ -1,15 +1,14 @@
 //
 //  File.swift
-//  
+//
 //
 //  Created by Андрэй Целігузаў on 24.04.23.
 //
 
 import Fluent
 
-
-enum Role : String, Codable, CaseIterable{
-    case student, teacher, administrator
+enum Role: String, Codable, CaseIterable {
+  case student, teacher, administrator
 }
 
 //extension Role: Migration {
@@ -22,7 +21,7 @@ enum Role : String, Codable, CaseIterable{
 //            .create()
 //            .transform(to: ())
 //    }
-//    
+//
 //    func revert(on database: Database) -> EventLoopFuture<Void> {
 //        return database.enum("role")
 //            .delete()
