@@ -1,0 +1,16 @@
+#extend("base"):
+  #export("content"):
+    <h1>Название: #(group.name)</h1>
+    <h2>Курс: #(group.course)</h2>
+    <h3>#if(group.inviteCode): Код Приглашения: #(group.inviteCode) #endif</h3>
+    <br>
+
+    <form method="post" action="/groups/#(group.id)/delete">
+      <a class="btn btn-primary" href="/groups/#(group.id)/edit"
+      role="button">Изменить</a>&nbsp;
+      <input class="btn btn-danger" type="submit" value="Удалить" />
+    </form>
+    <br>
+    #extend("lecturesTable")
+  #endexport
+#endextend

@@ -34,6 +34,9 @@
         <li class="nav-item #if(title == "Сообщения пользователей"): active #endif">
           <a href="/feedback" class="nav-link">Запросы</a>
         </li>
+        <li class="nav-item #if(title == "Группы"): active #endif">
+          <a href="/groups" class="nav-link">Группы</a>
+        </li>
         <li class="nav-item #if(title == "Создание пользователя"): active #endif">
           <a href="/users/create" class="nav-link">
             Создать пользователя
@@ -42,6 +45,11 @@
         <li class="nav-item #if(title == "Создание предмета"): active #endif">
           <a href="/subjects/create" class="nav-link">
             Создать предмет
+          </a>
+        </li>
+        <li class="nav-item #if(title == "Создание группы"): active #endif">
+          <a href="/groups/create" class="nav-link">
+            Создать группу
           </a>
         </li>
         #if(userLoggedIn == false || title == "Учет" || title == "Вход" ):

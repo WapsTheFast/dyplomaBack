@@ -359,7 +359,7 @@ struct WebsiteController: RouteCollection {
 // MARK: Groups
 
   func groupHandler(_ req: Request) async throws -> View {
-    guard let group = try await Group.find(req.parameters.get("subjectID"), on: req.db) else {
+    guard let group = try await Group.find(req.parameters.get("groupID"), on: req.db) else {
       throw Abort(.notFound)
     }
     let users = try await group.$users.get(on: req.db)

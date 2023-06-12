@@ -1,0 +1,32 @@
+#extend("base"):
+  #export("content"):
+    <h1>Группы:</h1>
+    
+    #if(count(groups) > 0):
+
+    <div class="table-responsive">
+      <table class="table table-bordered table-hover">
+        <thead class="thead-light">
+          <tr>
+            <th>Название</th>
+            <th>Курс</th>
+            <th>Код приглашения</th>
+          </tr>
+        </thead>
+        <tbody>
+          #for(group in groups):
+            <tr onclick="window.location.href = '/groups/#(group.id)'">
+              <td>#(group.name)</td>
+              <td>#(group.course)</td>
+              <td>#(group.inviteCode)</td>
+            </tr>
+          #endfor
+        </tbody>
+      </table>
+      </div>
+    #else:
+      <h2>Тут пока нету групп!</h2>
+    #endif
+    
+  #endexport
+#endextend
