@@ -16,7 +16,7 @@ struct CreateQuestions: AsyncMigration {
       .field("name", .string, .required)
       .field("questions", .json, .required)
       .field("teacher_id", .uuid, .references("users", "id"))
-      .field("lecture_id", .uuid, .references("lectures", "id"))
+      .field("lecture_id", .uuid, .references("lectures", "id", onDelete: .setNull, onUpdate: .cascade))
       .create()
   }
 

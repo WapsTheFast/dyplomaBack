@@ -16,7 +16,7 @@ struct CreateAnswers: AsyncMigration {
       .field("answers", .json, .required)
       .field("student_id", .uuid, .references("users", "id"))
       .field("lecture_id", .uuid, .references("lectures", "id"))
-      .field("questions_id", .uuid, .references("questions", "id"))
+      .field("questions_id", .uuid, .references("questions", "id", onDelete: .setNull, onUpdate: .cascade))
       .unique(on: "student_id", "questions_id")
       .create()
   }

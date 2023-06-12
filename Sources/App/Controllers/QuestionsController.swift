@@ -46,7 +46,7 @@ struct QuestionsController: RouteCollection {
 
   func create(req: Request) async throws -> Questions {
     let questions = try req.content.decode(Questions.self)
-    if (try await Questions.find(questions.id, on: req.db)) != nil {
+    if (try await Questions.query(on: req.db).filter(\.$lecture.$id == questions.$lecture.id).first()) != nil {
       return try await update(req: req)
     } else {
       try await questions.save(on: req.db)
@@ -58,7 +58,7 @@ struct QuestionsController: RouteCollection {
   func update(req: Request) async throws -> Questions {
     let questions = try req.content.decode(Questions.self)
 
-    guard let oldQuestions = try await Questions.find(questions.id, on: req.db) else {
+    guard let oldQuestions = try await Questions.query(on: req.db).filter(\.$lecture.$id == questions.$lecture.id).first() else {
       throw Abort(.notFound)
     }
 
