@@ -9,8 +9,8 @@
     </thead>
     <tbody>
         #for(lecture in lectures):
-        <tr>
-            <td><a href="/lectures/#(lecture.id)">#(lecture.name)</a></td>
+        <tr onclick="window.location.href = '/lectures/#(lecture.id)';">
+            <td>#(lecture.name)</td>
             <td>#date(lecture.date, "HH:mm dd-MM-yyyy")</td>
         </tr>
         #endfor

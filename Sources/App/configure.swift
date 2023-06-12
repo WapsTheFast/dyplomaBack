@@ -10,6 +10,8 @@ public func configure(_ app: Application) throws {
   app.routes.defaultMaxBodySize = "10mb"  // установите достаточно большое значение
   app.middleware.use(app.sessions.middleware)
 
+
+
   app.databases.use(
     .postgres(
       hostname: Environment.get("DATABASE_HOST") ?? "localhost",
