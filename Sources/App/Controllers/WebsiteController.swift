@@ -63,22 +63,29 @@ struct WebsiteController: RouteCollection {
   func indexHandler(_ req: Request) async throws -> View {
     let userLoggedIn = req.auth.has(User.self)
     var users: [User] = []
-    if userLoggedIn {
-      users = try await User.query(on: req.db).all()
-    }
-    let context = IndexContext(title: "Главная страница", userLoggedIn: userLoggedIn, users: users)
+    let context = IndexContext(title: "Главная страница", userLoggedIn: userLoggedIn)
     return try await req.view.render("index", context)
   }
 
   // MARK: Answers
 
   func allAnswersHandler(_ req: Request) async throws -> View {
+    let userToCheck = try req.auth.require(User.self)
+    if userToCheck.role != .administrator {
+      let context = LoginContext(loginError: true)
+      return try await req.view.render("login", context)
+    }
     let answers = try await Answers.query(on: req.db).all()
     let context = AllAnswersContext(answers: answers)
     return try await req.view.render("allAnswers", context)
   }
 
   func answersHandler(_ req: Request) async throws -> View {
+    let userToCheck = try req.auth.require(User.self)
+    if userToCheck.role != .administrator {
+      let context = LoginContext(loginError: true)
+      return try await req.view.render("login", context)
+    }
     guard let answers = try await Answers.find(req.parameters.get("answersID"), on: req.db) else {
       throw Abort(.notFound)
     }
@@ -107,6 +114,11 @@ struct WebsiteController: RouteCollection {
   // MARK: Users
 
   func userHandler(_ req: Request) async throws -> View {
+    let userToCheck = try req.auth.require(User.self)
+    if userToCheck.role != .administrator {
+      let context = LoginContext(loginError: true)
+      return try await req.view.render("login", context)
+    }
     guard let user = try await User.find(req.parameters.get("userID"), on: req.db) else {
       throw Abort(.notFound)
     }
@@ -126,6 +138,11 @@ struct WebsiteController: RouteCollection {
   }
 
   func allUsersHandler(_ req: Request) async throws -> View {
+    let userToCheck = try req.auth.require(User.self)
+    if userToCheck.role != .administrator {
+      let context = LoginContext(loginError: true)
+      return try await req.view.render("login", context)
+    }
     let users = try await User.query(on: req.db)
       .all()
     let context = AllUserContext(title: "Пользователи", users: users)
@@ -133,6 +150,11 @@ struct WebsiteController: RouteCollection {
   }
 
   func createUserHandler(_ req: Request) async throws -> View {
+    let userToCheck = try req.auth.require(User.self)
+    if userToCheck.role != .administrator {
+      let context = LoginContext(loginError: true)
+      return try await req.view.render("login", context)
+    }
     let token = [UInt8].random(count: 16).base64
     req.session.data["CSRF_TOKEN"] = token
     let groups = try await Group.query(on: req.db).all()
@@ -140,6 +162,11 @@ struct WebsiteController: RouteCollection {
     return try await req.view.render("createUser", context)
   }
   func createUserPostHandler(_ req: Request) async throws -> Response {
+    let userToCheck = try req.auth.require(User.self)
+    if userToCheck.role != .administrator {
+      let context = LoginContext(loginError: true)
+      return try await req.view.render("login", context).encodeResponse(for: req)
+    }
     let data = try req.content.decode(CreateUserFromData.self)
 
     let exceptedToken = req.session.data["CSRF_TOKEN"]
@@ -153,7 +180,7 @@ struct WebsiteController: RouteCollection {
 
     let user = User(
       name: data.name, surname: data.surname, role: String(describing: data.role),
-      email: data.email, username: data.username, password: data.password)
+      email: data.email, username: data.username, password: try Bcrypt.hash(data.password))
 
     try await user.save(on: req.db)
 
@@ -169,6 +196,11 @@ struct WebsiteController: RouteCollection {
   }
 
   func editUserHandler(_ req: Request) async throws -> View {
+    let userToCheck = try req.auth.require(User.self)
+    if userToCheck.role != .administrator {
+      let context = LoginContext(loginError: true)
+      return try await req.view.render("login", context)
+    }
     guard let user = try await User.find(req.parameters.get("userID"), on: req.db) else {
       throw Abort(.notFound)
     }
@@ -179,6 +211,11 @@ struct WebsiteController: RouteCollection {
   }
 
   func editUserPostHandler(_ req: Request) async throws -> Response {
+    let userToCheck = try req.auth.require(User.self)
+    if userToCheck.role != .administrator {
+      let context = LoginContext(loginError: true)
+      return try await req.view.render("login", context).encodeResponse(for: req)
+    }
     let updateData = try req.content.decode(CreateUserFromData.self)
     guard let user = try await User.find(req.parameters.get("userID"), on: req.db) else {
       throw Abort(.notFound)
@@ -222,6 +259,11 @@ struct WebsiteController: RouteCollection {
   }
 
   func deleteUserHandler(_ req: Request) async throws -> Response {
+    let userToCheck = try req.auth.require(User.self)
+    if userToCheck.role != .administrator {
+      let context = LoginContext(loginError: true)
+      return try await req.view.render("login", context).encodeResponse(for: req)
+    }
     guard let user = try await User.find(req.parameters.get("userID"), on: req.db) else {
       throw Abort(.notFound)
     }
@@ -232,6 +274,11 @@ struct WebsiteController: RouteCollection {
   // MARK: Subjects
 
   func subjectsHandler(_ req: Request) async throws -> View {
+    let userToCheck = try req.auth.require(User.self)
+    if userToCheck.role != .administrator {
+      let context = LoginContext(loginError: true)
+      return try await req.view.render("login", context)
+    }
     guard let subject = try await Subject.find(req.parameters.get("subjectID"), on: req.db) else {
       throw Abort(.notFound)
     }
@@ -241,12 +288,22 @@ struct WebsiteController: RouteCollection {
   }
 
   func allSubjectsHandler(_ req: Request) async throws -> View {
+    let userToCheck = try req.auth.require(User.self)
+    if userToCheck.role != .administrator {
+      let context = LoginContext(loginError: true)
+      return try await req.view.render("login", context)
+    }
     let subjects = try await Subject.query(on: req.db).all()
     let context = AllSubjectsContext(subjects: subjects)
     return try await req.view.render("allSubjects", context)
   }
 
   func createSubjectHandler(_ req: Request) async throws -> View {
+    let userToCheck = try req.auth.require(User.self)
+    if userToCheck.role != .administrator {
+      let context = LoginContext(loginError: true)
+      return try await req.view.render("login", context)
+    }
     let token = [UInt8].random(count: 16).base64
     req.session.data["CSRF_TOKEN"] = token
     let context = CreateSubjectContext(csrfToken: token)
@@ -254,6 +311,11 @@ struct WebsiteController: RouteCollection {
   }
 
   func createSubjectPostHandler(_ req: Request) async throws -> Response {
+    let userToCheck = try req.auth.require(User.self)
+    if userToCheck.role != .administrator {
+      let context = LoginContext(loginError: true)
+      return try await req.view.render("login", context).encodeResponse(for: req)
+    }
     let data = try req.content.decode(CreateSubjectFromData.self)
 
     let exceptedToken = req.session.data["CSRF_TOKEN"]
@@ -272,6 +334,11 @@ struct WebsiteController: RouteCollection {
   }
 
   func editSubjectHandler(_ req: Request) async throws -> View {
+    let userToCheck = try req.auth.require(User.self)
+    if userToCheck.role != .administrator {
+      let context = LoginContext(loginError: true)
+      return try await req.view.render("login", context)
+    }
     guard let subject = try await Subject.find(req.parameters.get("subjectID"), on: req.db) else {
       throw Abort(.notFound)
     }
@@ -281,6 +348,11 @@ struct WebsiteController: RouteCollection {
   }
 
   func editSubjectPostHandler(_ req: Request) async throws -> Response {
+    let userToCheck = try req.auth.require(User.self)
+    if userToCheck.role != .administrator {
+      let context = LoginContext(loginError: true)
+      return try await req.view.render("login", context).encodeResponse(for: req)
+    }
     let updateData = try req.content.decode(CreateSubjectFromData.self)
     guard let subject = try await Subject.find(req.parameters.get("subjectID"), on: req.db) else {
       throw Abort(.notFound)
@@ -294,16 +366,26 @@ struct WebsiteController: RouteCollection {
   }
 
   func deleteSubjectHandler(_ req: Request) async throws -> Response {
+    let userToCheck = try req.auth.require(User.self)
+    if userToCheck.role != .administrator {
+      let context = LoginContext(loginError: true)
+      return try await req.view.render("login", context).encodeResponse(for: req)
+    }
     guard let subject = try await Subject.find(req.parameters.get("subjectID"), on: req.db) else {
       throw Abort(.notFound)
     }
     try await subject.delete(on: req.db)
-    return req.redirect(to: "/")
+    return req.redirect(to: "/subjects")
   }
 
   // MARK: Lectures
 
   func lecturesHandler(_ req: Request) async throws -> View {
+    let userToCheck = try req.auth.require(User.self)
+    if userToCheck.role != .administrator {
+      let context = LoginContext(loginError: true)
+      return try await req.view.render("login", context)
+    }
     guard let lecture = try await Lecture.find(req.parameters.get("lectureID"), on: req.db) else {
       throw Abort(.notFound)
     }
@@ -312,6 +394,11 @@ struct WebsiteController: RouteCollection {
   }
 
   func editLecturePostHandler(_ req: Request) async throws -> Response {
+    let userToCheck = try req.auth.require(User.self)
+    if userToCheck.role != .administrator {
+      let context = LoginContext(loginError: true)
+      return try await req.view.render("login", context).encodeResponse(for: req)
+    }
     guard let lecture = try await Lecture.find(req.parameters.get("lectureID"), on: req.db) else {
       throw Abort(.notFound)
     }
@@ -322,6 +409,11 @@ struct WebsiteController: RouteCollection {
   }
 
   func deleteLectureHandler(_ req: Request) async throws -> Response {
+    let userToCheck = try req.auth.require(User.self)
+    if userToCheck.role != .administrator {
+      let context = LoginContext(loginError: true)
+      return try await req.view.render("login", context).encodeResponse(for: req)
+    }
     guard let lecture = try await Lecture.find(req.parameters.get("lectureID"), on: req.db) else {
       throw Abort(.notFound)
     }
@@ -359,6 +451,11 @@ struct WebsiteController: RouteCollection {
 // MARK: Groups
 
   func groupHandler(_ req: Request) async throws -> View {
+    let userToCheck = try req.auth.require(User.self)
+    if userToCheck.role != .administrator {
+      let context = LoginContext(loginError: true)
+      return try await req.view.render("login", context)
+    }
     guard let group = try await Group.find(req.parameters.get("groupID"), on: req.db) else {
       throw Abort(.notFound)
     }
@@ -369,12 +466,22 @@ struct WebsiteController: RouteCollection {
   }
 
   func allGroupsHandler(_ req: Request) async throws -> View {
+    let userToCheck = try req.auth.require(User.self)
+    if userToCheck.role != .administrator {
+      let context = LoginContext(loginError: true)
+      return try await req.view.render("login", context)
+    }
     let groups = try await Group.query(on: req.db).all()
     let context = AllGroupsContext(groups: groups)
     return try await req.view.render("allGroups", context)
   }
 
   func createGroupHandler(_ req: Request) async throws -> View {
+    let userToCheck = try req.auth.require(User.self)
+    if userToCheck.role != .administrator {
+      let context = LoginContext(loginError: true)
+      return try await req.view.render("login", context)
+    }
     let token = [UInt8].random(count: 16).base64
     req.session.data["CSRF_TOKEN"] = token
     let context = CreateGroupContext(csrfToken: token)
@@ -382,6 +489,11 @@ struct WebsiteController: RouteCollection {
   }
 
   func createGroupPostHandler(_ req: Request) async throws -> Response {
+    let userToCheck = try req.auth.require(User.self)
+    if userToCheck.role != .administrator {
+      let context = LoginContext(loginError: true)
+      return try await req.view.render("login", context).encodeResponse(for: req)
+    }
     let data = try req.content.decode(CreateGroupFromData.self)
 
     let exceptedToken = req.session.data["CSRF_TOKEN"]
@@ -401,6 +513,11 @@ struct WebsiteController: RouteCollection {
   }
 
   func editGroupHandler(_ req: Request) async throws -> View {
+    let userToCheck = try req.auth.require(User.self)
+    if userToCheck.role != .administrator {
+      let context = LoginContext(loginError: true)
+      return try await req.view.render("login", context)
+    }
     guard let group = try await Group.find(req.parameters.get("groupID"), on: req.db) else {
       throw Abort(.notFound)
     }
@@ -410,6 +527,11 @@ struct WebsiteController: RouteCollection {
   }
 
   func editGroupPostHandler(_ req: Request) async throws -> Response {
+    let userToCheck = try req.auth.require(User.self)
+    if userToCheck.role != .administrator {
+      let context = LoginContext(loginError: true)
+      return try await req.view.render("login", context).encodeResponse(for: req)
+    }
     let updateData = try req.content.decode(CreateGroupFromData.self)
     guard let group = try await Group.find(req.parameters.get("groupID"), on: req.db) else {
       throw Abort(.notFound)
@@ -426,6 +548,11 @@ struct WebsiteController: RouteCollection {
   }
 
   func deleteGroupHandler(_ req: Request) async throws -> Response {
+    let userToCheck = try req.auth.require(User.self)
+    if userToCheck.role != .administrator {
+      let context = LoginContext(loginError: true)
+      return try await req.view.render("login", context).encodeResponse(for: req)
+    }
     guard let subject = try await Group.find(req.parameters.get("groupID"), on: req.db) else {
       throw Abort(.notFound)
     }
@@ -433,6 +560,11 @@ struct WebsiteController: RouteCollection {
     return req.redirect(to: "/")
   }
   func feedbackHandler(_ req: Request) async throws -> View {
+    let userToCheck = try req.auth.require(User.self)
+    if userToCheck.role != .administrator {
+      let context = LoginContext(loginError: true)
+      return try await req.view.render("login", context)
+    }
     guard let feedback = try await Feedback.find(req.parameters.get("feedbackID"), on: req.db)
     else {
       throw Abort(.notFound)
@@ -446,6 +578,11 @@ struct WebsiteController: RouteCollection {
 // MARK: Feedback
 
   func allFeedbackHandler(_ req: Request) async throws -> View {
+    let userToCheck = try req.auth.require(User.self)
+    if userToCheck.role != .administrator {
+      let context = LoginContext(loginError: true)
+      return try await req.view.render("login", context)
+    }
     let feedbacks = try await Feedback.query(on: req.db).all()
     var userFeedback : [UserFeedback] = []
     for feedback in feedbacks{
@@ -457,6 +594,11 @@ struct WebsiteController: RouteCollection {
   }
 
   func deleteFeedbackHandler(_ req: Request) async throws -> Response {
+    let userToCheck = try req.auth.require(User.self)
+    if userToCheck.role != .administrator {
+      let context = LoginContext(loginError: true)
+      return try await req.view.render("login", context).encodeResponse(for: req)
+    }
     guard let subject = try await Feedback.find(req.parameters.get("feedbackID"), on: req.db) else {
       throw Abort(.notFound)
     }
@@ -494,7 +636,6 @@ struct LectureContext: Encodable {
 struct IndexContext: Encodable {
   let title: String
   let userLoggedIn: Bool
-  let users: [User]
 }
 
 struct SubjectContext: Encodable {
