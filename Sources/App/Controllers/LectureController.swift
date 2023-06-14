@@ -159,7 +159,7 @@ struct LectureController: RouteCollection {
     else {
       throw Abort(.notFound)
     }
-    if lecture.date + (600) < Date.now {
+    if lecture.date.addingTimeInterval(600) < Date() {
       studentOnLecture.state = .late
     } else {
       studentOnLecture.state = .onLecture
